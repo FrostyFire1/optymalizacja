@@ -74,31 +74,31 @@ void lab1()
 	
 	//zadanie teoretyczne
 
-	double* res = new double[2] { 0, 0 };
-	double x0 = 50, d = 5, alpha = 1.5;
-	int Nmax = 10000;
+	// double* res = new double[2] { 0, 0 };
+	// double x0 = 50, d = 5, alpha = 1.5;
+	// int Nmax = 10000;
 
-	//double a = 50, b = 70;
-	double epsilon = 0.0001;
-	double gamma = 0.000001;
-	solution wynik;
+	// //double a = 50, b = 70;
+	// double epsilon = 0.0001;
+	// double gamma = 0.000001;
+	// solution wynik;
 
-	for (int i = 0; i < 1; i++)
-	{
-		res = expansion(ff1T, x0, d, alpha, Nmax);
-		cout << res[0] << endl << res[1] << endl << solution::f_calls << endl << endl;
-		//Sout << "x" << res[0] << ";" << "x" << res[1] << ";" << "x" << solution::f_calls << "\n";
+	// for (int i = 0; i < 1; i++)
+	// {
+	// 	res = expansion(ff1T, x0, d, alpha, Nmax);
+	// 	cout << res[0] << endl << res[1] << endl << solution::f_calls << endl << endl;
+	// 	//Sout << "x" << res[0] << ";" << "x" << res[1] << ";" << "x" << solution::f_calls << "\n";
 
-		wynik = fib(ff1T, res[0], res[1], epsilon);
-		//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
-		cout << wynik << endl;
+	// 	wynik = fib(ff1T, res[0], res[1], epsilon);
+	// 	//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
+	// 	cout << wynik << endl;
 
-		wynik = lag(ff1T, res[0], res[1], epsilon, gamma, Nmax);
-		//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
-		cout << wynik << endl;
+	// 	wynik = lag(ff1T, res[0], res[1], epsilon, gamma, Nmax);
+	// 	//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
+	// 	cout << wynik << endl;
 
-		x0 = x0 + 2;
-	}
+	// 	x0 = x0 + 2;
+	// }
 
 
 
