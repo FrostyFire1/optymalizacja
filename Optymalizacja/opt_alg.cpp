@@ -208,7 +208,8 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		D.fit_fun(ff);
 
 		for (int i = 0; i < k - 3; i++) {
-			//cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "B-A: " << B.x - A.x << endl;
 			if (C.y(0) < D.y(0)) {
 				B.x = D.x;
 			}
@@ -248,7 +249,8 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		double l, m;
 		int i = 0;
 		while (true) {
-			//cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "B-A: " << B.x - A.x << endl;
 
 			l = A.y(0) * (pow(B.x(0), 2) - pow(C.x(0), 2)) + B.y(0) * (pow(C.x(0), 2) - pow(A.x(0), 2)) + C.y(0) * (pow(A.x(0), 2) - pow(B.x(0), 2));
 			m = (A.y(0) * (B.x(0) - C.x(0))) + (B.y(0) * (C.x(0) - A.x(0))) + (C.y(0) * (A.x(0) - B.x(0)));
@@ -268,6 +270,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 					C.x = D.x;
 					B.fit_fun(ff);
 					C.fit_fun(ff);
+
 				}
 				else
 					A.x = D.x;

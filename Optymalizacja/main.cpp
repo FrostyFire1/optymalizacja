@@ -70,40 +70,47 @@ void lab0()
 
 void lab1()
 {
-	std::ofstream Sout("symulacja_lab1.csv");
-	
+	std::ofstream theory("teoria.csv");
+	theory << "x(0);a;b;Liczba wywołań funkcji celu;x*;y*;Liczba wywołań funkcji celu;Minimum lokalne/globalne;x*;y*;Liczba wywołań funkcji celu;Minimum lokalne/globalne\n";
+	srand(time(NULL));
 	//zadanie teoretyczne
-
+	
 	double* res = new double[2] { 0, 0 };
-	double x0 = 50, d = 5, alpha = 1.5;
+	double x0 = 50, d = 5, alpha = 1.75;
 	int Nmax = 10000;
+	double min = -100, max = 100, maxRand = max - min;
 
 	//double a = 50, b = 70;
-	double epsilon = 0.0001;
+	double epsilon = 0.00001;
 	double gamma = 0.000001;
 	solution wynik;
-
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 100; i++)
 	{
+		x0 = (static_cast<double>(rand()) / RAND_MAX) * maxRand + min;
+		cout << x0 << endl;
 		res = expansion(ff1T, x0, d, alpha, Nmax);
-		cout << res[0] << endl << res[1] << endl << solution::f_calls << endl << endl;
+		//cout << res[0] << endl << res[1] << endl << solution::f_calls << endl << endl;
 		//Sout << "x" << res[0] << ";" << "x" << res[1] << ";" << "x" << solution::f_calls << "\n";
-
+		printf("%f, %f, %f, %d\n", x0, res[0], res[1], solution::f_calls);
+		theory << format("{};{};{};{};",x0, res[0], res[1], solution::f_calls);
+		//printf("============================================\n");
 		wynik = fib(ff1T, res[0], res[1], epsilon);
-		//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
 		cout << wynik << endl;
+		theory << format("{};{};{};-;", wynik.x(0), wynik.y(0), wynik.f_calls);
 
+		//printf("============================================\n");
 		wynik = lag(ff1T, res[0], res[1], epsilon, gamma, Nmax);
 		//Sout << "x" << wynik.x << "x" << wynik.y << "x" << wynik.f_calls << "\n";
 		cout << wynik << endl;
+		theory << format("{};{};{};-\n", wynik.x(0), wynik.y(0), wynik.f_calls);
+		//printf("============================================\n");
 
-		x0 = x0 + 2;
 	}
-
-
-
+	theory.close();
+	
+	
 	//zadanie praktyczne
-
+	/*
 	double* res = new double[2] { 0, 0 };
 	double da = 0.005, delta_da = 0.002;
 	double alpha = 1.5, epsilon = 0.0001, gamma = 0.000001;
@@ -112,8 +119,8 @@ void lab1()
 	res = expansion(ff2T, da, delta_da, alpha, nmax);
 	solution wynik;
 	//wynik = fib(ff2T, res[0], res[1], epsilon); 
-	cout << "Metoda Fibonacciego: " << endl;
-	cout << "Optymalna wielosc otwou D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;;
+	//cout << "Metoda Fibonacciego: " << endl;
+	//cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;;
 	//cout << wynik;
 	wynik = lag(ff2T, res[0], res[1], epsilon, gamma, nmax);
 	cout << "Metoda Lagrangea: " << endl;
@@ -123,7 +130,7 @@ void lab1()
 
 
 	//symlacja 
-
+	
 	// Warunki początkowe
 	matrix Y0(3, 1);
 	Y0(0) = 5.0;   // Początkowa objętość w zbiorniku A (VA)
@@ -159,7 +166,7 @@ void lab1()
 		file << t_values[i] << "x;" << VA_values[i] << "x;" << VB_values[i] << "x;" << TB_values[i] << "x\n";
 	}
 	file.close();
-
+	*/
 }
 
 void lab2()
