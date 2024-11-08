@@ -208,7 +208,8 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		D.fit_fun(ff);
 
 		for (int i = 0; i < k - 3; i++) {
-			//cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "B-A: " << B.x - A.x << endl;
 			if (C.y(0) < D.y(0)) {
 				B.x = D.x;
 			}
@@ -248,7 +249,8 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		double l, m;
 		int i = 0;
 		while (true) {
-			//cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "A: " << A.x << " B: " << B.x << endl;
+		//	cout << "B-A: " << B.x - A.x << endl;
 
 			l = A.y(0) * (pow(B.x(0), 2) - pow(C.x(0), 2)) + B.y(0) * (pow(C.x(0), 2) - pow(A.x(0), 2)) + C.y(0) * (pow(A.x(0), 2) - pow(B.x(0), 2));
 			m = (A.y(0) * (B.x(0) - C.x(0))) + (B.y(0) * (C.x(0) - A.x(0))) + (C.y(0) * (A.x(0) - B.x(0)));
@@ -268,6 +270,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 					C.x = D.x;
 					B.fit_fun(ff);
 					C.fit_fun(ff);
+
 				}
 				else
 					A.x = D.x;
@@ -322,36 +325,54 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 		//Tu wpisz kod funkcji
 		Xopt.clear_calls();
 		solution XB, XB_temp, X;
+
+		//ustawiamy punkt startowy
+		XB.x = x0;
+		XB.fit_fun(ff);
+		std::cout << "Punkt startowy XB: x = " << XB.x << ", y = " << XB.y << std::endl;
+
 		do {
-			XB.x = x0;
-			XB.fit_fun(ff);
-			X = HJ_trial(ff, XB, s).x;
+
+			//etap probny
+			X = HJ_trial(ff, XB, s);
+			std::cout << "Po HJ_trial: X = " << X.x << ", y = " << X.y << ", s = " << s << std::endl;
+			//je¿eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
 			if (X.y < XB.y) {
 				do {
 					XB_temp = XB;
 					XB = X;
+
 					X.x = 2 * XB.x - XB_temp.x;
 					X.fit_fun(ff);
+
 					X = HJ_trial(ff, X, s);
+					std::cout << "Po przesuniêciu: X = " << X.x << ", y = " << X.y << std::endl;
+
 					if (X.f_calls > Nmax) {
 						Xopt.flag = 0;
+						Xopt.x = XB.x;
+						Xopt.y = XB.y;
 						return Xopt;
 					}
 				} while (X.y < XB.y);
 				X = XB;
 			}
 			else {
-				s = alpha * s;
+				//je¿eli nie to zmniejszamy krok
+				s *= alpha;
+				std::cout << "Zmniejszamy krok: s = " << s << std::endl;
+
 			}
 			if (X.f_calls > Nmax) {
 				Xopt.flag = 0;
 				return Xopt;
 			}
+			Xopt.x = XB.x;
+			Xopt.y = XB.y;
+			Xopt.flag = 1;
 		} while (s > epsilon);
 
-		Xopt.x = XB.x;
-		Xopt.y = XB.y;
-		Xopt.flag = 1;
+
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -368,10 +389,12 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 		solution X;
 		int n = get_len(XB.x);
 		matrix E(n, n);
-		for (int j = 1; j < n; j++) {
+		//inicjalizacja macierzy jednostkowej
+		for (int j = 0; j < n; j++) {
 			E(j, j) = 1.0;
 		}
-		for (int j = 1; j < n; j++) {
+		//przeszukujemy w kierunkach
+		for (int j = 0; j < n; j++) {
 			X.x = XB.x + (s * E[j]);
 			X.fit_fun(ff);
 			if (X.y < XB.y) {
@@ -385,6 +408,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 				}
 			}
 		}
+		std::cout << "HJ_trial: Ostateczne XB po przeszukiwaniu: x = " << XB.x << ", y = " << XB.y << std::endl;
 		return XB;
 	}
 	catch (string ex_info)
@@ -400,22 +424,64 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		solution Xopt;
 		//Tu wpisz kod funkcji
 		solution::clear_calls();
+
 		int i = 0;
 		int n = get_len(x0);
 		matrix d(n, n);
-		for (int j = 1; j < n; j++) {
+
+		//inicjalizacja kierunkow
+		for (int j = 0; j < n; j++) {
 			d(j, j) = 1.0;
 		}
+
 		matrix lamda(n, 1), p(n, 1), s(s0);
 		solution XB, X_temp;
 		XB.x = x0;
 		XB.fit_fun(ff);
+		std::cout << "Punkt startowy Rosen: x = " << XB.x << ", y = " << XB.y << std::endl;
+
 		while (true) {
-			for (int j = 1; j < n; j++) {
+			for (int j = 0; j < n; j++) {
+				X_temp = XB;
 				X_temp.x = XB.x + (s(i) * d[i]);
 				X_temp.fit_fun(ff);
-				//if (X_temp.y < )
+
+				if (X_temp.y < XB.y)
+				{
+					//aktualizujemy punkt, ktory jest lepszy
+					XB = X_temp;
+				}
+				else
+				{
+					//jeœlinei idziemy w przeciwnym kierunku
+					X_temp.x = XB.x - (s(i) * d[i]);
+					X_temp.fit_fun(ff);
+					if (X_temp.y < XB.y)
+					{
+						XB = X_temp;
+					}
+				}
 			}
+			//je¿eli funckja celu zosta³a obliczona za du¿o razy
+			if (XB.f_calls > Nmax)
+			{
+				Xopt.flag = 0;
+				return Xopt;
+			}
+			//przerywamy jeœli osi¹gniêto wystarczajaca dok³adnoœæ
+			if (s(i) < epsilon)
+			{
+				break;
+			}
+			//przemieszczamy do nowego punktu
+
+			Xopt.x = XB.x;
+			Xopt.y = XB.y;
+			Xopt.flag = 1;
+			std::cout << "Aktualne wartoœci Rosen: x = " << XB.x << ", y = " << XB.y << ", s(i) = " << s(i) << std::endl;
+			return Xopt;
+
+
 		}
 
 		return Xopt;
