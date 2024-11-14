@@ -336,7 +336,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			//etap probny
 			X = HJ_trial(ff, XB, s);
 			std::cout << "Po HJ_trial: X = " << X.x << ", y = " << X.y << ", s = " << s << std::endl;
-			//je¿eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
+			//jeï¿½eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
 			if (X.y < XB.y) {
 				do {
 					XB_temp = XB;
@@ -346,7 +346,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 					X.fit_fun(ff);
 
 					X = HJ_trial(ff, X, s);
-					std::cout << "Po przesuniêciu: X = " << X.x << ", y = " << X.y << std::endl;
+					std::cout << "Po przesuniï¿½ciu: X = " << X.x << ", y = " << X.y << std::endl;
 
 					if (X.f_calls > Nmax) {
 						Xopt.flag = 0;
@@ -358,7 +358,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 				X = XB;
 			}
 			else {
-				//je¿eli nie to zmniejszamy krok
+				//jeï¿½eli nie to zmniejszamy krok
 				s *= alpha;
 				std::cout << "Zmniejszamy krok: s = " << s << std::endl;
 
@@ -395,13 +395,15 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 		}
 		//przeszukujemy w kierunkach
 		for (int j = 0; j < n; j++) {
-			X.x = XB.x + (s * E[j]);
+			X.x = XB.x + (s * exp(j));
 			X.fit_fun(ff);
-			if (X.y < XB.y) {
+			if (X.y < XB.y)
+			{
 				XB = X;
 			}
-			else {
-				X.x = XB.x - (s * E[j]);
+			else
+			{
+				X.x = XB.x - (s * exp(j));
 				X.fit_fun(ff);
 				if (X.y < XB.y) {
 					XB = X;
@@ -422,66 +424,98 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		// Initialize function call count
 		solution::clear_calls();
 
 		int i = 0;
 		int n = get_len(x0);
-		matrix d(n, n);
+		matrix d(n, n), lambda(n, 1), p(n, 1), s(s0);
 
-		//inicjalizacja kierunkow
+		// Initialize directions to identity matrix
 		for (int j = 0; j < n; j++) {
 			d(j, j) = 1.0;
+			lambda(j, 0) = 0;  // lambda(0) = 0
+			p(j, 0) = 0;       // p(0) = 0
 		}
 
-		matrix lamda(n, 1), p(n, 1), s(s0);
 		solution XB, X_temp;
 		XB.x = x0;
 		XB.fit_fun(ff);
-		std::cout << "Punkt startowy Rosen: x = " << XB.x << ", y = " << XB.y << std::endl;
+		std::cout << "Starting point Rosen: x = " << XB.x << ", y = " << XB.y << std::endl;
 
 		while (true) {
 			for (int j = 0; j < n; j++) {
 				X_temp = XB;
-				X_temp.x = XB.x + (s(i) * d[i]);
+
+				// Move in the positive direction along `d[j]`
+				X_temp.x = XB.x + (s(j) * d[j]);
 				X_temp.fit_fun(ff);
 
-				if (X_temp.y < XB.y)
-				{
-					//aktualizujemy punkt, ktory jest lepszy
+				if (X_temp.y < XB.y) {
+					// Successful step, update XB and step size
 					XB = X_temp;
-				}
-				else
-				{
-					//jeœlinei idziemy w przeciwnym kierunku
-					X_temp.x = XB.x - (s(i) * d[i]);
+					lambda(j, 0) += s(j);      // lambda(j) = lambda(j) + s(j)
+					s(j) *= alpha;             // s(j) = alpha * s(j)
+				} else {
+					// Try moving in the negative direction
+					X_temp.x = XB.x - (s(j) * d[j]);
 					X_temp.fit_fun(ff);
-					if (X_temp.y < XB.y)
-					{
+
+					if (X_temp.y < XB.y) {
+						// Successful in the negative direction
 						XB = X_temp;
+						lambda(j, 0) -= s(j);  // lambda(j) = lambda(j) - s(j)
+						s(j) *= alpha;         // s(j) = alpha * s(j)
+					} else {
+						// Both directions failed, reduce step size
+						s(j) *= -beta;         // s(j) = -beta * s(j)
+						p(j, 0) += 1;          // p(j) = p(j) + 1
 					}
 				}
 			}
-			//je¿eli funckja celu zosta³a obliczona za du¿o razy
-			if (XB.f_calls > Nmax)
-			{
-				Xopt.flag = 0;
-				return Xopt;
-			}
-			//przerywamy jeœli osi¹gniêto wystarczajaca dok³adnoœæ
-			if (s(i) < epsilon)
-			{
-				break;
-			}
-			//przemieszczamy do nowego punktu
 
+			// Check if we need to change the direction basis
+			bool change_basis = true;
+			for (int j = 0; j < n; j++) {
+				if (lambda(j, 0) == 0 || p(j, 0) == 0) {
+					change_basis = false;
+					break;
+				}
+			}
+
+			if (change_basis) {
+				// Reset direction basis
+				for (int j = 0; j < n; j++) {
+					d(j, j) = 1.0;        // Reset direction to standard basis
+					lambda(j, 0) = 0;     // Reset lambda
+					p(j, 0) = 0;          // Reset p
+					s(j) = s0(j);         // Reset s to initial step size
+				}
+			}
+
+			// Update iteration count and check termination conditions
+			i++;
 			Xopt.x = XB.x;
 			Xopt.y = XB.y;
-			Xopt.flag = 1;
-			std::cout << "Aktualne wartoœci Rosen: x = " << XB.x << ", y = " << XB.y << ", s(i) = " << s(i) << std::endl;
-			return Xopt;
 
+			// Check for function call limit
+			if (XB.f_calls > Nmax) {
+				Xopt.flag = 0;  // Indicate failure
+				return Xopt;
+			}
 
+			// Check convergence criterion: max_j |s(j)| < epsilon
+			double max_s = 0.0;
+			for (int j = 0; j < n; j++) {
+				max_s = std::max(max_s, std::abs(s(j)));
+			}
+			if (max_s < epsilon) {
+				Xopt.flag = 1;  // Indicate success
+				std::cout << "Converged: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
+				return Xopt;
+			}
+
+			std::cout << "Current values Rosen: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
 		}
 
 		return Xopt;
