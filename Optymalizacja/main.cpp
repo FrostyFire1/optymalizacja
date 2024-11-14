@@ -22,7 +22,7 @@ int main()
 {
 	try
 	{
-		lab1();
+		lab2();
 	}
 	catch (string EX_INFO)
 	{
@@ -70,6 +70,7 @@ void lab0()
 
 void lab1()
 {
+	/*
 	std::ofstream theory("teoria.csv");
 	theory << "x(0);a;b;Liczba wywołań funkcji celu;x*;y*;Liczba wywołań funkcji celu;Minimum lokalne/globalne;x*;y*;Liczba wywołań funkcji celu;Minimum lokalne/globalne\n";
 	srand(time(NULL));
@@ -106,9 +107,9 @@ void lab1()
 		//printf("============================================\n");
 
 	}
-	theory.close();
-	
-	
+
+
+
 	//zadanie praktyczne
 	/*
 	double* res = new double[2] { 0, 0 };
@@ -126,8 +127,6 @@ void lab1()
 	cout << "Metoda Lagrangea: " << endl;
 	cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;
 	//cout << wynik;
-
-
 
 	//symlacja 
 	
@@ -171,6 +170,74 @@ void lab1()
 
 void lab2()
 {
+	int num_optimalizatoins = 100;
+	int max_iterations = 10000;
+	double epsilon = 1e-6;
+	double alpha = 0.5;
+	double beta = 0.5;
+	std::vector<double> step_sizes = { 1.0, 0.5, 0.1 };
+	std::vector<std::vector<double>> results(num_optimalizatoins, std::vector<double>(step_sizes.size()));
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<double> dis(-1.0, 1.0);
+
+	std::ofstream file("results_table1.txt");
+	//make header each other column in excel
+	file << "step_size,optim_number,x1,x2,x_HJ1,x_HJ2,y,f_calls_HJ,is_global_min_HJ,x_Rosen.1,x_ROsen2,y_Rosen,f_calls_Rosen,is_global_min_Rosen\n";
+
+
+
+	for (double step_size : step_sizes) {
+		for(int i=0;i<num_optimalizatoins;i++){
+			//losowanie punktu startowego
+			matrix x0(2, 1);
+			x0(0) = dis(gen);
+			x0(1) = dis(gen);
+			
+			// Parametry dla Rosenbrocka
+			matrix s0(2, 1);
+			s0(0) = step_size;
+			s0(1) = step_size;
+
+			// Parametry dla Hooke’a-Jeevesa
+			solution Xopt_HJ = HJ(ff3T, x0, step_size,alpha, epsilon, max_iterations);
+			bool is_global_min_HJ = (Xopt_HJ.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
+
+			// Parametry dla Rosenbrocka
+			solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
+			bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
+
+			// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku
+			std::cout << "Podejscie dla step_size: " << step_size << " i numeru optymalizacji: " << i+1 << std::endl;
+			std::cout << "step_size: " << step_size << std::endl;
+			std::cout << "optim_number: " << i << std::endl;
+			std::cout << "x0: " << x0(0) << std::endl;
+			std::cout << "y0: " << x0(1) << std::endl;
+
+			std::cout << "x1_HJ: " << Xopt_HJ.x(0) << std::endl;
+			std::cout << "x2_HJ: " << Xopt_HJ.x(1) << std::endl;
+			std::cout << "y_HJ: " << Xopt_HJ.y(0) << std::endl;
+			std::cout << "f_calls_HJ: " << Xopt_HJ.f_calls << std::endl;
+			std::cout << "is_global_min_HJ: " << is_global_min_HJ << std::endl;
+
+			std::cout << "x1_Rosen: " << Xopt_Rosen.x(0) << std::endl;
+			std::cout << "x2_Rosen: " << Xopt_Rosen.x(1) << std::endl;
+			std::cout << "y_Rosen: " << Xopt_Rosen.y(0) << std::endl;
+
+			std::cout << "f_calls_Rosen: " << Xopt_Rosen.f_calls << std::endl;
+			std::cout << "is_global_min_Rosen: " << is_global_min_Rosen << std::endl;
+
+			//zapis do pliku
+			file << step_size << "," << i << "," << x0(0) << "," << x0(1) << "," << Xopt_HJ.x(0) << "," << Xopt_HJ.x(1) << "," << Xopt_HJ.y(0) << "," << Xopt_HJ.f_calls << "," << is_global_min_HJ << "," << Xopt_Rosen.x(0) << "," << Xopt_Rosen.x(1) << "," << Xopt_Rosen.y(0) << "," << Xopt_Rosen.f_calls << "," << is_global_min_Rosen << "\n";
+
+
+		}
+	}
+
+	file.close();
+	std::cout << "Zakończono obliczenia\n";
+
+
 
 }
 
