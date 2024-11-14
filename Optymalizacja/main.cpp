@@ -173,7 +173,8 @@ void lab2()
 	int num_optimalizatoins = 100;
 	int max_iterations = 10000;
 	double epsilon = 1e-6;
-	double alpha = 0.5;
+	double alphaHJ = 0.5;
+	double alphaRos = 1.5;
 	double beta = 0.5;
 	std::vector<double> step_sizes = { 1.0, 0.5, 0.1 };
 	std::vector<std::vector<double>> results(num_optimalizatoins, std::vector<double>(step_sizes.size()));
@@ -200,11 +201,11 @@ void lab2()
 			s0(1) = step_size;
 
 			// Parametry dla Hooke’a-Jeevesa
-			solution Xopt_HJ = HJ(ff3T, x0, step_size,alpha, epsilon, max_iterations);
+			solution Xopt_HJ = HJ(ff3T, x0, step_size,alphaHJ, epsilon, max_iterations);
 			bool is_global_min_HJ = (Xopt_HJ.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
 
 			// Parametry dla Rosenbrocka
-			solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
+			solution Xopt_Rosen = Rosen(ff3T, x0, s0, alphaRos, beta, epsilon, max_iterations);
 			bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
 
 			// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku

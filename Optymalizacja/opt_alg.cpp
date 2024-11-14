@@ -336,7 +336,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			//etap probny
 			X = HJ_trial(ff, XB, s);
 			std::cout << "Po HJ_trial: X = " << X.x << ", y = " << X.y << ", s = " << s << std::endl;
-			//je¿eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
+			//jeï¿½eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
 			if (X.y < XB.y) {
 				do {
 					XB_temp = XB;
@@ -346,7 +346,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 					X.fit_fun(ff);
 
 					X = HJ_trial(ff, X, s);
-					std::cout << "Po przesuniêciu: X = " << X.x << ", y = " << X.y << std::endl;
+					std::cout << "Po przesuniï¿½ciu: X = " << X.x << ", y = " << X.y << std::endl;
 
 					if (X.f_calls > Nmax) {
 						Xopt.flag = 0;
@@ -358,7 +358,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 				X = XB;
 			}
 			else {
-				//je¿eli nie to zmniejszamy krok
+				//jeï¿½eli nie to zmniejszamy krok
 				s *= alpha;
 				std::cout << "Zmniejszamy krok: s = " << s << std::endl;
 
@@ -395,13 +395,15 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 		}
 		//przeszukujemy w kierunkach
 		for (int j = 0; j < n; j++) {
-			X.x = XB.x + (s * E[j]);
+			X.x = XB.x + (s * exp(j));
 			X.fit_fun(ff);
-			if (X.y < XB.y) {
+			if (X.y < XB.y)
+			{
 				XB = X;
 			}
-			else {
-				X.x = XB.x - (s * E[j]);
+			else
+			{
+				X.x = XB.x - (s * exp(j));
 				X.fit_fun(ff);
 				if (X.y < XB.y) {
 					XB = X;
@@ -453,7 +455,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				}
 				else
 				{
-					//jeœlinei idziemy w przeciwnym kierunku
+					//jeï¿½linei idziemy w przeciwnym kierunku
 					X_temp.x = XB.x - (s(i) * d[i]);
 					X_temp.fit_fun(ff);
 					if (X_temp.y < XB.y)
@@ -462,13 +464,13 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 					}
 				}
 			}
-			//je¿eli funckja celu zosta³a obliczona za du¿o razy
+			//jeï¿½eli funckja celu zostaï¿½a obliczona za duï¿½o razy
 			if (XB.f_calls > Nmax)
 			{
 				Xopt.flag = 0;
 				return Xopt;
 			}
-			//przerywamy jeœli osi¹gniêto wystarczajaca dok³adnoœæ
+			//przerywamy jeï¿½li osiï¿½gniï¿½to wystarczajaca dokï¿½adnoï¿½ï¿½
 			if (s(i) < epsilon)
 			{
 				break;
@@ -478,7 +480,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 			Xopt.x = XB.x;
 			Xopt.y = XB.y;
 			Xopt.flag = 1;
-			std::cout << "Aktualne wartoœci Rosen: x = " << XB.x << ", y = " << XB.y << ", s(i) = " << s(i) << std::endl;
+			std::cout << "Aktualne wartoï¿½ci Rosen: x = " << XB.x << ", y = " << XB.y << ", s(i) = " << s(i) << std::endl;
 			return Xopt;
 
 
