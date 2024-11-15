@@ -241,6 +241,7 @@ void lab2()
 
 		}
 	}
+	file.close();
 
 		//zapis do pliku
 	//Praktyczna
@@ -266,25 +267,36 @@ void lab2()
 	cout << "Metoda Rosena" << endl;
 	wynik = Rosen(ff3R, x_r, s_r, alpha_rRosen, beta_r, epsilon_r, max_iterations_r);
 	cout << "Optymalne wspolczynniki wzmocnienia: " << endl << wynik.x << endl << "Wartosc funkcjonalu: " << wynik.y << endl;
+	std::cout << "Zakonczono obliczenia\n";
 
 
 	//Symulacja
+	cout << "Zaczeto symulacje\n";
 	matrix ud1(2, new double[2] {3.14, 0}), ud2;
-	matrix x_s(2,1);
-	x_s(0) = 5;
-	x_s(1) = 5;
-	ud2 = x_s;
+	ud2 = wynik.x;
 	//Czas symulacji
 	double t0 = 0;
 	double tend = 100.0;
 	double dt = 0.1;
+	matrix Y0(2, 1);
 
-	matrix* S = solve_ode(df2, t0, dt, tend, x_s, ud1, ud2);
+	matrix* Y = solve_ode(df2, t0, dt, tend, Y0, ud1, ud2);
 
-	int N = static_cast<int>(floor((tend - t0) / dt) + 1);
-
-	file.close();
-	std::cout << "Zakonczono obliczenia\n";
+	int N = get_len((Y[0]));
+	std::vector<double> t_values(N);
+	std::vector<double> alpha_values(N);
+	std::vector<double> omega_values(N);
+	for (int i = 0; i < N; ++i) {
+		t_values[i] = Y[0](i);
+		alpha_values[i] = Y[1](i, 0); // Pierwsza kolumna to VA
+		omega_values[i] = Y[1](i, 1); // Druga kolumna to VB
+	}
+	std::ofstream file_s("symulacja_lab2.csv");
+	file_s << "Czas;Alfa;Omega\n";
+	for (int i = 0; i < N; ++i) {
+		file_s << t_values[i] << "x;" << alpha_values[i] << "x;" << omega_values[i] << "x\n";
+	}
+	file_s.close();
 
 
 
