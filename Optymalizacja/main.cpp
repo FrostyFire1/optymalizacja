@@ -181,9 +181,9 @@ void lab2()
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<double> dis(-1.0, 1.0);
 
-	std::ofstream file("results_table1.txt");
+	std::ofstream file("results_table1.csv");
 	//make header each other column in excel
-	file << "step_size,optim_number,x1,x2,x_HJ1,x_HJ2,y,f_calls_HJ,is_global_min_HJ,x_Rosen.1,x_ROsen2,y_Rosen,f_calls_Rosen,is_global_min_Rosen\n";
+	file << "step_size;optim_number;x1;x2;x_HJ1;x_HJ2;y;f_calls_HJ;is_global_min_HJ;x_Rosen.1;x_ROsen2;y_Rosen;f_calls_Rosen;is_global_min_Rosen\n";
 
 
 
@@ -198,15 +198,18 @@ void lab2()
 			matrix s0(2, 1);
 			s0(0) = step_size;
 			s0(1) = step_size;
+			file << step_size << ";" << i << ";" << x0(0) << ";" << x0(1) << ";";
 
 			// Parametry dla Hooke’a-Jeevesa
 			solution Xopt_HJ = HJ(ff3T, x0, step_size,alpha, epsilon, max_iterations);
 			bool is_global_min_HJ = (Xopt_HJ.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
+			file << Xopt_HJ.x(0) << ";" << Xopt_HJ.x(1) << ";" << Xopt_HJ.y(0) << ";" << Xopt_HJ.f_calls << ";" << is_global_min_HJ << ";";
 
 			// Parametry dla Rosenbrocka
+			solution::clear_calls();
 			solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
 			bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
-
+			file << Xopt_Rosen.x(0) << ";" << Xopt_Rosen.x(1) << ";" << Xopt_Rosen.y(0) << ";" << Xopt_Rosen.f_calls << ";" << is_global_min_Rosen << "\n";
 			// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku
 			std::cout << "Podejscie dla step_size: " << step_size << " i numeru optymalizacji: " << i+1 << std::endl;
 			std::cout << "step_size: " << step_size << std::endl;
@@ -228,7 +231,8 @@ void lab2()
 			std::cout << "is_global_min_Rosen: " << is_global_min_Rosen << std::endl;
 
 			//zapis do pliku
-			file << step_size << "," << i << "," << x0(0) << "," << x0(1) << "," << Xopt_HJ.x(0) << "," << Xopt_HJ.x(1) << "," << Xopt_HJ.y(0) << "," << Xopt_HJ.f_calls << "," << is_global_min_HJ << "," << Xopt_Rosen.x(0) << "," << Xopt_Rosen.x(1) << "," << Xopt_Rosen.y(0) << "," << Xopt_Rosen.f_calls << "," << is_global_min_Rosen << "\n";
+			//Praktyczna
+				
 
 
 		}

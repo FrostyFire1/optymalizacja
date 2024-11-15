@@ -395,7 +395,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 		}
 		//przeszukujemy w kierunkach
 		for (int j = 0; j < n; j++) {
-			X.x = XB.x + (s * exp(j));
+			X.x = XB.x + (s * E[j]);
 			X.fit_fun(ff);
 			if (X.y < XB.y)
 			{
@@ -403,7 +403,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 			}
 			else
 			{
-				X.x = XB.x - (s * exp(j));
+				X.x = XB.x - (s * E[j]);
 				X.fit_fun(ff);
 				if (X.y < XB.y) {
 					XB = X;
