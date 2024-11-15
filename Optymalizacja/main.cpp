@@ -176,6 +176,7 @@ void lab2()
 	int max_iterations = 10000;
 	double epsilon = 1e-6;
 	double alpha = 0.5;
+	double alpha_rosen = 3;
 	double beta = 0.5;
 	std::vector<double> step_sizes = { 1.0, 0.5, 0.1 };
 	std::vector<std::vector<double>> results(num_optimalizatoins, std::vector<double>(step_sizes.size()));
@@ -209,9 +210,10 @@ void lab2()
 
 				// Parametry dla Rosenbrocka
 				solution::clear_calls();
-				solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
+				solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha_rosen, beta, epsilon, max_iterations);
 				bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
 				file << Xopt_Rosen.x(0) << ";" << Xopt_Rosen.x(1) << ";" << Xopt_Rosen.y(0) << ";" << Xopt_Rosen.f_calls << ";" << is_global_min_Rosen << "\n";
+				solution::clear_calls();
 				// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku
 				std::cout << "Podejscie dla step_size: " << step_size << " i numeru optymalizacji: " << i + 1 << std::endl;
 				std::cout << "step_size: " << step_size << std::endl;
@@ -242,46 +244,47 @@ void lab2()
 
 		//zapis do pliku
 	//Praktyczna
+	matrix x_r(2, 1);
+	x_r(0) = dis(gen);
+	x_r(1) = dis(gen);
+	cout << "Wylosowane poczatkowe wspolczynniki wzmocnienia: " << x_r(0) << " || " << x_r(1) << endl;
+	double alpha_rHJ = 0.5;
+	double alpha_rRosen = 1.5;
+	double beta_r = 0.5;
+	double epsilon_r = 1e-6;
+	double step_r = 0.5;
+	double max_iterations_r = 1e4;
 
-	//zadanie praktyczne
-	/*
-	double* res = new double[2] { 0, 0 };
-	double da = 0.005, delta_da = 0.002;
-	double alpha = 1.5, epsilon = 0.0001, gamma = 0.000001;
-	int nmax = 1000;
-
-	res = expansion(ff2T, da, delta_da, alpha, nmax);
 	solution wynik;
-	//wynik = fib(ff2T, res[0], res[1], epsilon);
-	//cout << "Metoda Fibonacciego: " << endl;
-	//cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;;
-	//cout << wynik;
-	wynik = lag(ff2T, res[0], res[1], epsilon, gamma, nmax);
-	cout << "Metoda Lagrangea: " << endl;
-	cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;
-	//cout << wynik;
-	*/
-	matrix k(2, new double[2] {5.0, 5.0});
-	double step_r = 1.0;
-	double wynik = m2d(ff3R(k));
-	cout << ff3R(k) << endl;
-	//Symulacja spadaj
+	cout << "Metoda HJ" << endl;
+	wynik = HJ(ff3R, x_r, step_r, alpha_rHJ, epsilon_r, max_iterations_r);
+	cout << "Optymalne wspolczynniki wzmocnienia: " << endl << wynik.x << endl << "Wartosc funkcjonalu: " << wynik.y << endl;
+	solution::clear_calls();
+	matrix s_r(2, 1);
+	s_r(0) = step_r;
+	s_r(1) = step_r;
+	cout << "Metoda Rosena" << endl;
+	wynik = Rosen(ff3R, x_r, s_r, alpha_rRosen, beta_r, epsilon_r, max_iterations_r);
+	cout << "Optymalne wspolczynniki wzmocnienia: " << endl << wynik.x << endl << "Wartosc funkcjonalu: " << wynik.y << endl;
+
+
+	//Symulacja
 	matrix ud1(2, new double[2] {3.14, 0}), ud2;
-	matrix x(2,1);
-	x(0) = 5;
-	x(1) = 5;
-	ud2 = x;
+	matrix x_s(2,1);
+	x_s(0) = 5;
+	x_s(1) = 5;
+	ud2 = x_s;
 	//Czas symulacji
 	double t0 = 0;
 	double tend = 100.0;
 	double dt = 0.1;
 
-	matrix* S = solve_ode(df2, t0, dt, tend, x, ud1, ud2);
+	matrix* S = solve_ode(df2, t0, dt, tend, x_s, ud1, ud2);
 
 	int N = static_cast<int>(floor((tend - t0) / dt) + 1);
 
 	file.close();
-	std::cout << "Zakończono obliczenia\n";
+	std::cout << "Zakonczono obliczenia\n";
 
 
 

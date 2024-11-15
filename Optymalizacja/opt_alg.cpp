@@ -329,13 +329,13 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 		//ustawiamy punkt startowy
 		XB.x = x0;
 		XB.fit_fun(ff);
-		std::cout << "Punkt startowy XB: x = " << XB.x << ", y = " << XB.y << std::endl;
+		//std::cout<< "Punkt startowy XB: x = " << XB.x << ", y = " << XB.y << std::endl;
 
 		do {
 
 			//etap probny
 			X = HJ_trial(ff, XB, s);
-			std::cout << "Po HJ_trial: X = " << X.x << ", y = " << X.y << ", s = " << s << std::endl;
+			//std::cout<< "Po HJ_trial: X = " << X.x << ", y = " << X.y << ", s = " << s << std::endl;
 			//je�eli punkt X jest lepszy od XB to przesuwamy sie w tym kierunku
 			if (X.y < XB.y) {
 				do {
@@ -346,7 +346,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 					X.fit_fun(ff);
 
 					X = HJ_trial(ff, X, s);
-					std::cout << "Po przesuni�ciu: X = " << X.x << ", y = " << X.y << std::endl;
+					//std::cout<< "Po przesuni�ciu: X = " << X.x << ", y = " << X.y << std::endl;
 
 					if (X.f_calls > Nmax) {
 						Xopt.flag = 0;
@@ -360,7 +360,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			else {
 				//je�eli nie to zmniejszamy krok
 				s *= alpha;
-				std::cout << "Zmniejszamy krok: s = " << s << std::endl;
+				//std::cout<< "Zmniejszamy krok: s = " << s << std::endl;
 
 			}
 			if (X.f_calls > Nmax) {
@@ -410,7 +410,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 				}
 			}
 		}
-		std::cout << "HJ_trial: Ostateczne XB po przeszukiwaniu: x = " << XB.x << ", y = " << XB.y << std::endl;
+		//std::cout<< "HJ_trial: Ostateczne XB po przeszukiwaniu: x = " << XB.x << ", y = " << XB.y << std::endl;
 		return XB;
 	}
 	catch (string ex_info)
@@ -441,7 +441,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		solution XB, X_temp;
 		XB.x = x0;
 		XB.fit_fun(ff);
-		std::cout << "Starting point Rosen: x = " << XB.x << ", y = " << XB.y << std::endl;
+		//std::cout<< "Starting point Rosen: x = " << XB.x << ", y = " << XB.y << std::endl;
 
 		while (true) {
 			for (int j = 0; j < n; j++) {
@@ -511,11 +511,11 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 			}
 			if (max_s < epsilon) {
 				Xopt.flag = 1;  // Indicate success
-				std::cout << "Converged: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
+				//std::cout<< "Converged: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
 				return Xopt;
 			}
 
-			std::cout << "Current values Rosen: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
+			//std::cout<< "Current values Rosen: x = " << XB.x << ", y = " << XB.y << ", max_s = " << max_s << std::endl;
 		}
 
 		return Xopt;
