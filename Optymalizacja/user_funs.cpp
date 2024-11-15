@@ -90,7 +90,7 @@ matrix df2(double t, matrix Y, matrix ud1, matrix ud2) {
 	double mr = 1.0; // masa ramienia robota
 	double mc = 5.0; // masa ciężarka
 	double b = 0.5; // Współczynnik tarcia
-	double I = (1 / 3) * (mr * pow(l, 2)) + mc * pow(l, 2);//moment bezwładności
+	double I = (1.0 / 3.0) * (mr * pow(l, 2)) + mc * pow(l, 2);//moment bezwładności
 
 	double Mt = ud2(0) * (ud1(0) - Y(0)) + ud2(1) * (ud1(1) - Y(1));
 	
@@ -107,7 +107,7 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2) {
 
 	return matrix(1, 1, result);
 }
-matrix ff3R(matrix x) {
+matrix ff3R(matrix x, matrix ud1, matrix ud2) {
 	double y = 0;
 	matrix Y0(2, 1), Yref(2, new double[2] {3.14, 0});
 	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, x);

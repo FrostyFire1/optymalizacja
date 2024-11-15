@@ -170,6 +170,8 @@ void lab1()
 
 void lab2()
 {
+	const bool DO_THEORY = false;
+
 	int num_optimalizatoins = 100;
 	int max_iterations = 10000;
 	double epsilon = 1e-6;
@@ -186,57 +188,97 @@ void lab2()
 	file << "step_size;optim_number;x1;x2;x_HJ1;x_HJ2;y;f_calls_HJ;is_global_min_HJ;x_Rosen.1;x_ROsen2;y_Rosen;f_calls_Rosen;is_global_min_Rosen\n";
 
 
+	if (DO_THEORY) {
+		for (double step_size : step_sizes) {
+			for (int i = 0; i < num_optimalizatoins; i++) {
+				//losowanie punktu startowego
+				matrix x0(2, 1);
+				x0(0) = dis(gen);
+				x0(1) = dis(gen);
 
-	for (double step_size : step_sizes) {
-		for(int i=0;i<num_optimalizatoins;i++){
-			//losowanie punktu startowego
-			matrix x0(2, 1);
-			x0(0) = dis(gen);
-			x0(1) = dis(gen);
-			
-			// Parametry dla Rosenbrocka
-			matrix s0(2, 1);
-			s0(0) = step_size;
-			s0(1) = step_size;
-			file << step_size << ";" << i << ";" << x0(0) << ";" << x0(1) << ";";
+				// Parametry dla Rosenbrocka
+				matrix s0(2, 1);
+				s0(0) = step_size;
+				s0(1) = step_size;
+				file << step_size << ";" << i << ";" << x0(0) << ";" << x0(1) << ";";
 
-			// Parametry dla Hooke’a-Jeevesa
-			solution Xopt_HJ = HJ(ff3T, x0, step_size,alpha, epsilon, max_iterations);
-			bool is_global_min_HJ = (Xopt_HJ.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
-			file << Xopt_HJ.x(0) << ";" << Xopt_HJ.x(1) << ";" << Xopt_HJ.y(0) << ";" << Xopt_HJ.f_calls << ";" << is_global_min_HJ << ";";
+				// Parametry dla Hooke’a-Jeevesa
+				solution Xopt_HJ = HJ(ff3T, x0, step_size, alpha, epsilon, max_iterations);
+				bool is_global_min_HJ = (Xopt_HJ.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
+				file << Xopt_HJ.x(0) << ";" << Xopt_HJ.x(1) << ";" << Xopt_HJ.y(0) << ";" << Xopt_HJ.f_calls << ";" << is_global_min_HJ << ";";
 
-			// Parametry dla Rosenbrocka
-			solution::clear_calls();
-			solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
-			bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
-			file << Xopt_Rosen.x(0) << ";" << Xopt_Rosen.x(1) << ";" << Xopt_Rosen.y(0) << ";" << Xopt_Rosen.f_calls << ";" << is_global_min_Rosen << "\n";
-			// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku
-			std::cout << "Podejscie dla step_size: " << step_size << " i numeru optymalizacji: " << i+1 << std::endl;
-			std::cout << "step_size: " << step_size << std::endl;
-			std::cout << "optim_number: " << i << std::endl;
-			std::cout << "x0: " << x0(0) << std::endl;
-			std::cout << "y0: " << x0(1) << std::endl;
+				// Parametry dla Rosenbrocka
+				solution::clear_calls();
+				solution Xopt_Rosen = Rosen(ff3T, x0, s0, alpha, beta, epsilon, max_iterations);
+				bool is_global_min_Rosen = (Xopt_Rosen.y(0) < epsilon); // Sprawdzamy, czy osiągnięto minimum globalne
+				file << Xopt_Rosen.x(0) << ";" << Xopt_Rosen.x(1) << ";" << Xopt_Rosen.y(0) << ";" << Xopt_Rosen.f_calls << ";" << is_global_min_Rosen << "\n";
+				// niech wypisze mi cout dane ktore mialy by byc zapisane do pliku
+				std::cout << "Podejscie dla step_size: " << step_size << " i numeru optymalizacji: " << i + 1 << std::endl;
+				std::cout << "step_size: " << step_size << std::endl;
+				std::cout << "optim_number: " << i << std::endl;
+				std::cout << "x0: " << x0(0) << std::endl;
+				std::cout << "y0: " << x0(1) << std::endl;
 
-			std::cout << "x1_HJ: " << Xopt_HJ.x(0) << std::endl;
-			std::cout << "x2_HJ: " << Xopt_HJ.x(1) << std::endl;
-			std::cout << "y_HJ: " << Xopt_HJ.y(0) << std::endl;
-			std::cout << "f_calls_HJ: " << Xopt_HJ.f_calls << std::endl;
-			std::cout << "is_global_min_HJ: " << is_global_min_HJ << std::endl;
+				std::cout << "x1_HJ: " << Xopt_HJ.x(0) << std::endl;
+				std::cout << "x2_HJ: " << Xopt_HJ.x(1) << std::endl;
+				std::cout << "y_HJ: " << Xopt_HJ.y(0) << std::endl;
+				std::cout << "f_calls_HJ: " << Xopt_HJ.f_calls << std::endl;
+				std::cout << "is_global_min_HJ: " << is_global_min_HJ << std::endl;
 
-			std::cout << "x1_Rosen: " << Xopt_Rosen.x(0) << std::endl;
-			std::cout << "x2_Rosen: " << Xopt_Rosen.x(1) << std::endl;
-			std::cout << "y_Rosen: " << Xopt_Rosen.y(0) << std::endl;
+				std::cout << "x1_Rosen: " << Xopt_Rosen.x(0) << std::endl;
+				std::cout << "x2_Rosen: " << Xopt_Rosen.x(1) << std::endl;
+				std::cout << "y_Rosen: " << Xopt_Rosen.y(0) << std::endl;
 
-			std::cout << "f_calls_Rosen: " << Xopt_Rosen.f_calls << std::endl;
-			std::cout << "is_global_min_Rosen: " << is_global_min_Rosen << std::endl;
+				std::cout << "f_calls_Rosen: " << Xopt_Rosen.f_calls << std::endl;
+				std::cout << "is_global_min_Rosen: " << is_global_min_Rosen << std::endl;
+			}
 
-			//zapis do pliku
-			//Praktyczna
-				
+
+
 
 
 		}
 	}
+
+		//zapis do pliku
+	//Praktyczna
+
+	//zadanie praktyczne
+	/*
+	double* res = new double[2] { 0, 0 };
+	double da = 0.005, delta_da = 0.002;
+	double alpha = 1.5, epsilon = 0.0001, gamma = 0.000001;
+	int nmax = 1000;
+
+	res = expansion(ff2T, da, delta_da, alpha, nmax);
+	solution wynik;
+	//wynik = fib(ff2T, res[0], res[1], epsilon);
+	//cout << "Metoda Fibonacciego: " << endl;
+	//cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;;
+	//cout << wynik;
+	wynik = lag(ff2T, res[0], res[1], epsilon, gamma, nmax);
+	cout << "Metoda Lagrangea: " << endl;
+	cout << "Optymalna wielosc otworu D_A: " << wynik.x << "\nMaksymalna temperatura wody w zbiorniku: " << wynik.y + 50 << "|" << wynik.y << "\nLiczna wywolan fukcji: " << wynik.f_calls << "\nExit flag: " << wynik.flag << endl;
+	//cout << wynik;
+	*/
+	matrix k(2, new double[2] {5.0, 5.0});
+	double step_r = 1.0;
+	double wynik = m2d(ff3R(k));
+	cout << ff3R(k) << endl;
+	//Symulacja spadaj
+	matrix ud1(2, new double[2] {3.14, 0}), ud2;
+	matrix x(2,1);
+	x(0) = 5;
+	x(1) = 5;
+	ud2 = x;
+	//Czas symulacji
+	double t0 = 0;
+	double tend = 100.0;
+	double dt = 0.1;
+
+	matrix* S = solve_ode(df2, t0, dt, tend, x, ud1, ud2);
+
+	int N = static_cast<int>(floor((tend - t0) / dt) + 1);
 
 	file.close();
 	std::cout << "Zakończono obliczenia\n";
