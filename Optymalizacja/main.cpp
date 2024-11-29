@@ -367,7 +367,7 @@ void lab3()
 	std::cout << opt << "\n";
 
 	//Symulacja lotu piłki dla wyznaczonych ograniczeń
-	matrix Y0(4, new double[4] {0.0, opt.x(0), 100, 0});
+	matrix Y0(4, new double[4] {0.0, opt.x(0), 100, 0});		
 	matrix* Y = solve_ode(df3, 0.0, 0.01, 7.0, Y0, ud1, opt.x(1));
 
 	std::ofstream file("simulation.csv");
