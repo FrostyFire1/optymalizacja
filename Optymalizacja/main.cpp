@@ -9,7 +9,8 @@ Data ostatniej modyfikacji: 19.09.2023
 *********************************************/
 
 #include"opt_alg.h"
-
+#include "user_funs.h"
+#include"file_reader.h"
 void lab0();
 void lab1();
 void lab2();
@@ -22,7 +23,7 @@ int main()
 {
 	try
 	{
-		lab3();
+		lab4();
 	}
 	catch (string EX_INFO)
 	{
@@ -377,7 +378,100 @@ void lab3()
 
 void lab4()
 {
+	double epsilon = 1e-6;
+	double h0 = 0.05;
+	double a = 0.0;
+	double b = 1.0;
+	int Nmax = 10000;
 
+	std::ofstream Sout("symulacja_lab4.csv");
+
+
+
+	// Generator liczb losowych
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> x0_dist(-10.0, 10.0);
+
+	std::stringstream results;
+
+	matrix x0 = matrix(2, new double[2] {0, 0});
+	matrix ud1 = NAN;
+	matrix ud2 = NAN;
+
+	solution grad_result;
+
+	for (int i = 0; i < 3; ++i) {
+		if (i == 0)
+			h0 = 0.05;
+		else if (i == 1)
+			h0 = 0.12;
+		else
+			h0 = 0;
+
+		for (int j = 0; j < 100; ++j) {
+
+			//generowanie punktów startowych 
+			x0 = matrix(2, new double[2] {x0_dist(gen), x0_dist(gen)});
+			results << x0(0) << ";" << x0(1) << ";";
+
+			// Najszybszego spadku
+			grad_result = SD(ff4T, gf4T, x0, h0, epsilon, Nmax, ud1, ud2);
+			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";";
+			std::cout << grad_result << "\n";
+			solution::clear_calls();
+
+			// gradnentów sprzeżonych
+			grad_result = CG(ff4T, gf4T, x0, h0, epsilon, Nmax, ud1, ud2);
+			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";";
+			std::cout << grad_result << "\n";
+			solution::clear_calls();
+
+			// Newton
+			grad_result = Newton(ff4T, gf4T, hf4T, x0, h0, epsilon, Nmax, ud1, ud2);
+			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";" << grad_result.H_calls << "\n";
+			std::cout << grad_result << "\n";
+			solution::clear_calls();
+
+		}
+	}
+
+	Sout << results.str();
+	Sout.close();
+
+
+
+
+
+	//Pobieranie danych z pliku
+	matrix x_data = file_reader::fileToMatrix(3, 100, "./XData.txt");
+	matrix y_data = file_reader::fileToMatrix(1, 100, "./YData.txt");
+
+	//Początkowe theta
+	matrix theta_start = matrix(3, new double[3] {0.0, 0.0, 0.0});
+
+	//Długości kroków
+	double h0_arr_sim[] = { 0.01, 0.001, 0.0001 };
+
+	for (auto& h0 : h0_arr_sim)
+	{
+		//Wyliczanie optymalnych parametrów klasyfikatora
+		solution theta_opt = CG(ff4R, gf4R, theta_start, h0, epsilon, Nmax, x_data, y_data);
+		std::cout << theta_opt << "\n";
+
+		//Obliczanie procentu dostających się osób
+		double percentage = 0;
+		for (int i = 0; i < 100; ++i)
+		{
+			matrix curr_x = x_data[i];
+			matrix curr_y = y_data[i];
+			double calculated_value = sigmoid(theta_opt.x, curr_x);
+			if (round(calculated_value) == curr_y)
+				++percentage;
+		}
+		std::cout << "Percentage: " << percentage << "\n\n\n";
+		solution::clear_calls();
+	}
 }
 
 void lab5()

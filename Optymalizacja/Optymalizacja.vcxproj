@@ -128,7 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="environment.cpp" />
+    <ClCompile Include="file_reader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="ode_solver.cpp" />
@@ -137,8 +137,7 @@
     <ClCompile Include="user_funs.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="configuration.h" />
-    <ClInclude Include="environment.h" />
+    <ClInclude Include="file_reader.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="ode_solver.h" />
     <ClInclude Include="opt_alg.h" />

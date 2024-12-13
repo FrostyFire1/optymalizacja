@@ -694,7 +694,43 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	{
 		solution Xopt;
 		//Tu wpisz kod funkcji
+		int i = 0;
+		Xopt.x = x0;
+		matrix x_next = Xopt.x;
+		matrix d;
+		double h;
+		while (true) {
+			//cout << Xopt.x(0) << endl;
+			//cout<< Xopt.x(1) << endl;
+			Xopt.x = x_next;
 
+			d = -Xopt.grad(gf, ud1, ud2);
+
+			// Zmienny krok h z metodą złotego podziału
+			if (h0 <= 0) {
+				matrix h_fun_data(2, 2);
+				h_fun_data.set_col(Xopt.x, 0);
+				h_fun_data.set_col(d, 1);
+				solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
+				h = h_sol.x(0); // Przyjęcie znalezionego optymalnego kroku
+			}
+			else {
+				h = h0; // Stały krok
+			}
+
+			x_next = Xopt.x + h * d;
+			i++;
+			if (Xopt.g_calls > Nmax) {
+				Xopt.flag = 0;
+				break;
+			}
+			if (norm(x_next - Xopt.x) < epsilon) {
+				Xopt.flag = 1;
+				break;
+			}
+		}
+
+		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -707,30 +743,125 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 {
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+		std::stringstream ss{};
 
-		return Xopt;
+		solution XB;
+		XB.x = x0;
+
+		solution XT;
+		matrix g_prev;
+		matrix g_curr;
+		matrix d;
+
+		XB.grad(gf, ud1, ud2);
+		g_prev = XB.g;
+		d = -g_prev;
+
+		while (true)
+		{
+
+			ss << XB.x(0) << ";" << XB.x(1) << "\n";
+			//Metoda zmiennokrokowa
+			if (h0 <= 0)
+			{
+				matrix h_fun_data(2, 2);
+				h_fun_data.set_col(XB.x, 0);
+				h_fun_data.set_col(d, 1);
+				solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
+				matrix h = h_sol.x;
+				XT.x = XB.x + h * d;
+			}
+			//Metoda sta³okrokowa
+			else
+			{
+				XT.x = XB.x + h0 * d;
+			}
+
+			if (solution::g_calls > Nmax)
+			{
+
+				XT.fit_fun(ff, ud1, ud2);
+				return XT;
+			}
+
+			if (norm(XT.x - XB.x) <= epsilon)
+				break;
+
+			XT.grad(gf, ud1, ud2);
+			g_curr = XT.g;
+
+			double beta = pow(norm(g_curr), 2) / pow(norm(g_prev), 2);
+			d = -g_curr + beta * d;
+
+			g_prev = g_curr;
+			XB = XT;
+
+			//cout << XT.x(0) << endl;
+			//cout << XT.x(1) << endl;
+		}
+
+		XT.fit_fun(ff, ud1, ud2);
+		return XT;
 	}
 	catch (string ex_info)
 	{
 		throw ("solution CG(...):\n" + ex_info);
 	}
 }
-
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
 	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		// Inicjalizacja
+		int i = 0;
+		Xopt.x = x0;
+		matrix x_next = Xopt.x;
+		matrix d;
+		double h; // krok
+		matrix H; // hesjan
 
+		while (true) {
+			//cout << Xopt.x(0) << endl;
+			//cout << Xopt.x(1) << endl;
+
+			Xopt.x = x_next;
+			H = Xopt.hess(Hf, ud1, ud2);
+			H = inv(H);
+			d = -H * Xopt.grad(gf, ud1, ud2);
+
+			// Zmienny krok h z metodą złotego podziału
+			if (h0 <= 0) {
+				matrix h_fun_data(2, 2);
+				h_fun_data.set_col(Xopt.x, 0);
+				h_fun_data.set_col(d, 1);
+				solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
+				h = h_sol.x(0); // Przyjęcie znalezionego optymalnego kroku
+			}
+			else {
+				h = h0; // Stały krok
+			}
+
+			x_next = Xopt.x + h * d;
+
+			i++;
+			if (Xopt.g_calls > Nmax || Xopt.H_calls > Nmax || Xopt.f_calls > Nmax) {
+				Xopt.flag = 0; // Przekroczono maksymalną liczbę wywołań
+				break;
+			}
+			if (norm(x_next - Xopt.x) < epsilon) {
+				Xopt.flag = 1; // Konwergencja
+				break;
+			}
+		}
+
+		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Newton(...):\n" + ex_info);
+		throw ("solution SD(...):\n" + ex_info);
 	}
 }
 
@@ -739,8 +870,41 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		double alpha = (pow(5, 0.5) - 1) / 2;
+		double a0 = a;
+		double b0 = b;
+		double c0 = b0 - alpha * (b0 - a0);
+		double d0 = a0 + alpha * (b0 - a0);
 
+		do
+		{
+			solution c0_sol;
+			c0_sol.x = c0;
+			c0_sol.fit_fun(ff, ud1, ud2);
+
+			solution d0_sol;
+			d0_sol.x = d0;
+			d0_sol.fit_fun(ff, ud1, ud2);
+
+			if (c0_sol.y < d0_sol.y)
+			{
+				b0 = d0;
+				d0 = c0;
+				c0 = b0 - alpha * (b0 - a0);
+			}
+			else
+			{
+				c0 = d0;
+				a0 = c0;
+				d0 = a0 + alpha * (b0 - a0);
+			}
+
+			if (solution::f_calls > Nmax)
+				throw std::string("Maximum amount of f_calls reached!: ");
+
+		} while (b0 - a0 > epsilon);
+
+		Xopt.x = (a0 + b0) / 2;
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -748,7 +912,6 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 		throw ("solution golden(...):\n" + ex_info);
 	}
 }
-
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try

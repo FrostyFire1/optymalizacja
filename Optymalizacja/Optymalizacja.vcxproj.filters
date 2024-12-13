@@ -33,7 +33,7 @@
     <ClCompile Include="matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="environment.cpp">
+    <ClCompile Include="file_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,10 +53,7 @@
     <ClInclude Include="user_funs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="environment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="configuration.h">
+    <ClInclude Include="file_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
