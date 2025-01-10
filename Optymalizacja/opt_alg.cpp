@@ -823,8 +823,7 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 		matrix H; // hesjan
 
 		while (true) {
-			//cout << Xopt.x(0) << endl;
-			//cout << Xopt.x(1) << endl;
+			cout << Xopt.x(0) << ";" << Xopt.x(1);
 
 			Xopt.x = x_next;
 			H = Xopt.hess(Hf, ud1, ud2);
@@ -838,6 +837,7 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 				h_fun_data.set_col(d, 1);
 				solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
 				h = h_sol.x(0); // Przyjęcie znalezionego optymalnego kroku
+				cout << " || Krok: " << h << endl;
 			}
 			else {
 				h = h0; // Stały krok
@@ -857,6 +857,7 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 		}
 
 		Xopt.fit_fun(ff, ud1, ud2);
+		cout << "KONIEC\n\n";
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -918,7 +919,62 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 	{
 		solution Xopt;
 		//Tu wpisz kod funkcji
+		Xopt = x0;
 
+		//Macierz diagonalna (linijka 2 pseudokodu)
+		int n = get_len(x0);
+		vector<matrix> d_vector;
+
+		for (int j = 0; j < n; j++) {
+			matrix d(n, 1);
+			d(j, 0) = 1.0;
+			d_vector.push_back(d);
+		}
+
+		while (true) {
+			vector<solution> p_vector;
+			p_vector.push_back(Xopt);
+			for (int j = 1; j <= n; j++) {
+				//Wyznaczenie h, nie jestem pewny czy dobrze (linijka 6 pseudokodu), glownie tego czy jest tutaj dobre d [juz zamienione, powinno byc dobrze]
+				double h;
+				matrix h_fun_data(2, 2);
+				h_fun_data.set_col(Xopt.x, 0);				//tu sie pieprzy, nie wiem dlaczego (w ktoryms z set_col)
+				h_fun_data.set_col(d_vector[j - 1], 1);
+				solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
+				h = h_sol.x(0);
+
+				p_vector.push_back(p_vector[j - 1].x(0) + h * d_vector[j - 1]);
+			}
+			if (norm(p_vector[n].x(0) - Xopt.x(0)) < epsilon) {
+				Xopt.flag = 1;
+				Xopt.fit_fun(ff, ud1); //Nie jestem pewny poprawnosci tej linijki
+				return Xopt;
+			}
+
+			for (int j = 1; j < n; j++) {
+				d_vector[j - 1] = d_vector[j];
+			}
+
+			d_vector[n - 1] = p_vector[n - 1].x(0) - p_vector[0].x(0);
+
+			//Tu to samo co wyzej, nie jestem pewny tego czy to jest dobre d [juz zamienione, powinno byc dobrze]
+			double h;
+			matrix h_fun_data(2, 2);
+			h_fun_data.set_col(Xopt.x, 0);
+			h_fun_data.set_col(d_vector[n - 1], 1);
+			solution h_sol = golden(ff, 0, 1, epsilon, Nmax, ud1, h_fun_data);
+			h = h_sol.x(0);
+
+			p_vector.push_back(p_vector[n - 1].x(0) + h * d_vector[n - 1]);
+			Xopt.x(0) = p_vector[n].x(0);
+
+			if (solution::f_calls > Nmax) {
+				Xopt.flag = 0;
+				break;
+			}
+		}
+
+		Xopt.fit_fun(ff); //Nie jestem pewny poprawnosci tej linijki
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -926,6 +982,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		throw ("solution Powell(...):\n" + ex_info);
 	}
 }
+
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {

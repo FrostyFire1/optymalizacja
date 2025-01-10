@@ -23,7 +23,7 @@ int main()
 {
 	try
 	{
-		lab4();
+		lab5();
 	}
 	catch (string EX_INFO)
 	{
@@ -400,8 +400,8 @@ void lab4()
 	matrix ud2 = NAN;
 
 	solution grad_result;
-
-	for (int i = 0; i < 3; ++i) {
+	
+	for (int i = 2; i < 3; ++i) {
 		if (i == 0)
 			h0 = 0.05;
 		else if (i == 1)
@@ -414,23 +414,23 @@ void lab4()
 			//generowanie punktów startowych 
 			x0 = matrix(2, new double[2] {x0_dist(gen), x0_dist(gen)});
 			results << x0(0) << ";" << x0(1) << ";";
-
+			/*
 			// Najszybszego spadku
 			grad_result = SD(ff4T, gf4T, x0, h0, epsilon, Nmax, ud1, ud2);
 			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";";
-			std::cout << grad_result << "\n";
+			//std::cout << grad_result << "\n";
 			solution::clear_calls();
 
 			// gradnentów sprzeżonych
 			grad_result = CG(ff4T, gf4T, x0, h0, epsilon, Nmax, ud1, ud2);
 			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";";
-			std::cout << grad_result << "\n";
+			//std::cout << grad_result << "\n";
 			solution::clear_calls();
-
+			*/
 			// Newton
 			grad_result = Newton(ff4T, gf4T, hf4T, x0, h0, epsilon, Nmax, ud1, ud2);
 			results << grad_result.x(0) << ";" << grad_result.x(1) << ";" << grad_result.y << ";" << grad_result.f_calls << ";" << grad_result.g_calls << ";" << grad_result.H_calls << "\n";
-			std::cout << grad_result << "\n";
+			//std::cout << grad_result << "\n";
 			solution::clear_calls();
 
 		}
@@ -438,7 +438,7 @@ void lab4()
 
 	Sout << results.str();
 	Sout.close();
-
+	
 
 
 
@@ -474,9 +474,32 @@ void lab4()
 	}
 }
 
+#define TEORETYCZNE5 1
 void lab5()
 {
 
+#ifdef TEORETYCZNE5
+
+	matrix X;
+	double w = 0.01, a = 1, epsilon = 0.0001;
+	int Nmax = 1000;
+	matrix ud1 = matrix(2, new double[2] {w, a});
+	matrix ud2 = NAN;
+
+	solution result;
+
+	double x1 = ((rand() % 200) / 100.0) - 1;
+	double x2 = ((rand() % 200) / 100.0) - 1;
+	X = matrix(2, new double[2] {x1, x2});
+	result = Powell(ff5T, X, epsilon, Nmax, ud1, ud2);
+	cout << result;
+
+
+#endif // TEORETYCZNE5
+
+#ifdef PRAKTYCZNE5
+
+#endif // PRAKTYCZNE5
 }
 
 void lab6()
