@@ -954,8 +954,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			for (int j = 1; j < n; j++) {
 				d_vector[j - 1] = d_vector[j];
 			}
-
-			d_vector[n - 1] = p_vector[n - 1].x(0) - p_vector[0].x(0);
+			d_vector[n - 1](1) = p_vector[n - 1].x(0) - p_vector[0].x(0);
 
 			//Tu to samo co wyzej, nie jestem pewny tego czy to jest dobre d [juz zamienione, powinno byc dobrze]
 			double h;

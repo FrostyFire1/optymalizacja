@@ -479,7 +479,7 @@ void lab5()
 {
 
 #ifdef TEORETYCZNE5
-
+	srand(time(NULL));
 	matrix X;
 	double w = 0.01, a = 1, epsilon = 0.0001;
 	int Nmax = 1000;
@@ -488,10 +488,13 @@ void lab5()
 
 	solution result;
 
-	double x1 = ((rand() % 200) / 100.0) - 1;
-	double x2 = ((rand() % 200) / 100.0) - 1;
+	double x1 = ((rand() % 1000) / 100.0) - 1;
+	//double x1 = 0;
+	double x2 = ((rand() % 1000) / 100.0) - 1;
+	//double x2 = 0;
 	X = matrix(2, new double[2] {x1, x2});
 	result = Powell(ff5T, X, epsilon, Nmax, ud1, ud2);
+	cout << "punkty startowe: " << x1 << ";" << x2 << endl;
 	cout << result;
 
 
