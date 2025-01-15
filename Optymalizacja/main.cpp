@@ -478,7 +478,6 @@ void lab4()
 void lab5()
 {
 	std::ofstream Sout("symulacja_lab5.csv");
-	std::stringstream results;
 
 	double a, epsilon = 0.0001;
 	int Nmax = 1000;
@@ -497,29 +496,34 @@ void lab5()
 	}
 
 	for (double i = 0; i < 3; ++i) {
+		std::stringstream results;
+
 		if (i == 0)
 			a = 1;
 		else if (i == 1)
 			a = 10;
 		else
 			a = 100;
-
+		std::stringstream fileName;
+		fileName << "teoretyczne_lab5_a_" << a << ".csv";
+		std::ofstream Tout(fileName.str());
 		for (double w = 0.0; w <= 1.01; w += 0.01) {
 
 			matrix ud1 = matrix(2, new double[2] {w, a});
 			X = matrix(2, new double[2] {x1[w * 100], x2[w * 100]});
 			result = Powell(ff5T, X, epsilon, Nmax, ud1);
-			results << x1[w * 100] << "X ;" << x2[w * 100] << "X ;" << result.x(0) << "X ;" << result.x(1) << "X ;" << result.y(0) << "X ;" << result.y(1) << "X ;" << result.f_calls << "X \n";
-			//cout << result;
+			results << x1[w * 100] << ";" << x2[w * 100] << ";" << result.x(0) << ";" << result.x(1) << ";" << result.y(0) << ";" << result.y(1) << ";" << result.f_calls << "\n";
 		}
+		Tout << results.str();
 
 		results << "\n ";
 	}
+	Tout.close();
 
 #endif // TEORETYCZNE5
 
 #ifdef PRAKTYCZNE5
-
+	std::stringstream results;
 	for (double w = 0.0; w <= 1.01; w += 0.01)
 	{
 		matrix ud1(1);
@@ -530,14 +534,15 @@ void lab5()
 
 		solution result1 = Powell(ff5R, x0, epsilon, Nmax, ud1);
 
-		results << x0(0) << "X ;" << x0(1) << "X ;" << result1.x(0) << "X ;" << result1.x(1) << "X ;" << result1.y(0) << "X ;" << result1.y(1) << "X ;" << solution::f_calls << "\n";
+		results << x0(0) << ";" << x0(1) << ";" << result1.x(0) << ";" << result1.x(1) << ";" << result1.y(0) << ";" << result1.y(1) << ";" << solution::f_calls << "\n";
 		solution::clear_calls();
 	}
-
-#endif // PRAKTYCZNE5
-
 	Sout << results.str();
 	Sout.close();
+#endif // PRAKTYCZNE5
+
+	//Sout << results.str();
+	//Sout.close();
 }
 
 
