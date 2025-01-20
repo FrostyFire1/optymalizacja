@@ -23,7 +23,7 @@ int main()
 {
 	try
 	{
-		lab5();
+		lab6();
 	}
 	catch (string EX_INFO)
 	{
@@ -545,8 +545,60 @@ void lab5()
 	//Sout.close();
 }
 
-
+#define PRAKTYCZNE6
 void lab6()
 {
+	double sigma_tab[] = { 0.01, 0.1, 1, 10, 100 };
+	int N = 2;
 
+	matrix lb(N, 1);
+	lb(0) = -5;
+	lb(1) = -5;
+
+	matrix ub(N, 1);
+	ub(0) = 5;
+	ub(1) = 5;
+
+	int mi = 20;
+	int lambda = 40;
+	double epsilon = 1e-5;
+	int Nmax = 10000;
+
+#ifdef TEORETYCZNE6
+	std::ofstream Tout("teoretyczne_lab6.csv");
+	std::stringstream results;
+	for (int s = 0; s < 5; s++) {
+		std::cout << "Sigma = " << sigma_tab[s] << std::endl;
+		for (int i = 0; i < 100; i++) {
+			solution result = EA(ff6T, N, lb, ub, mi, lambda, sigma_tab[s], epsilon, Nmax);
+			cout << result.x(0) << ";" << result.x(1) << ";" << result.y(0) << ";" << result.f_calls << std::endl;
+			results << result.x(0) << ";" << result.x(1) << ";" << result.y(0) << ";" << result.f_calls << std::endl;
+			solution::clear_calls();
+		}
+	}
+	Tout << results.str();
+	Tout.close()
+
+#endif // TEORETYCZNE6
+
+#ifdef PRAKTYCZNE6
+	std::ofstream Sout("symulacja_lab6.csv");
+	matrix data = file_reader::fileToMatrix(1001, 2, "./polozenia.txt");
+	
+	std::cout << data << std::endl;
+	lb = matrix(2, 1, 0.1);
+	ub = matrix(2, 1, 3);
+
+	solution result = EA(ff6R, N, lb, ub, mi, lambda, sigma_tab[2], 1e-3, Nmax, 1001, data);
+	std::cout << "Optymalne wartosci b1 i b2: " << result << std::endl;
+	std::cout << "Optymalne wartosci b1 i b2: " << result.x(0) << ";" << result.x(1) << ";" << result.y(0) << ";" << result.f_calls << std::endl;
+	solution::clear_calls();
+
+	matrix y;
+	matrix Y0(4, 1);
+	matrix* Y = solve_ode(df6, 0, 0.1, 100, Y0, NAN, result.x[0]);
+	Sout << Y[1];
+	Sout.close();
+
+#endif // PRAKTYCZNE6
 }
